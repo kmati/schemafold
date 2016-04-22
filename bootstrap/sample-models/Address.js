@@ -1,7 +1,7 @@
 export const Address = {
-	street1: String,
+	street1: { type: String, required: true },
 	apt: String,
-	city: String,
-	state: String,
+	city: { type: String, required: true },
+	state: { type: String, required: true },
 	zip: String
 };
