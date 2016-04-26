@@ -92,3 +92,15 @@ let dal = process.env.DAL || 'node-mongodb';
 
 In the example above, you would change 'node-mongodb' to the DAL you want.
 
+
+## Generated Output
+
+The ```schemafold``` produces the API and DAL output files in an output directory. The structure of the output files is as follows:
+
+```
+outputDirectory/
+	dal/
+		{DAL modules}
+	{API modules}
+```
+
