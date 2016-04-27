@@ -142,7 +142,7 @@ var schemaBasedGenerator = exports.schemaBasedGenerator = {
 		function processGeneralResources(onProcessingDone) {
 			var GeneralApiResources = require('./' + opts.api + '/GeneralApiResources').GeneralApiResources;
 			var generalApiResources = new GeneralApiResources();
-			var resourcesArr = generalApiResources.generate(schemaLoader.schemas);
+			var resourcesArr = generalApiResources.generate('Number(' + opts.port + ')', schemaLoader.schemas);
 			sequence(resourcesArr, function (resource, done) {
 				_fs2.default.writeFile(_path2.default.join(opts.outdir, resource.file), resource.code, done);
 			}, onProcessingDone);

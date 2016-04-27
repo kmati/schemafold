@@ -1,6 +1,6 @@
 {
   "name": "schemafold",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Generates API and persistence scaffolding from schemas",
   "main": "src/app/index.js",
   "scripts": {
