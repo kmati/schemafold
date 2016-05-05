@@ -144,11 +144,14 @@ var SchemaToDal = exports.SchemaToDal = function () {
 						var _enum = val.enum;
 						var _index = val.index;
 						var _default = val.default;
+						var _float = val.float;
 						if (_type) {
 							val = _type;
 						}
 
-						if (val === Number) {
+						if (val === Number && _float) {
+							columns += ', ' + columnName + ' REAL' + notNullStr;
+						} else if (val === Number) {
 							columns += ', ' + columnName + ' INTEGER' + notNullStr;
 						} else if (val === String) {
 							columns += ', ' + columnName + ' TEXT' + notNullStr;

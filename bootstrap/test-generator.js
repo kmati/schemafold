@@ -30,7 +30,8 @@ const tester = {
 			dbConnectString: dbConnectString,
 			schemas: {
 				Person: path.join(__dirname, 'sample-models/Person.js'),
-				Address: path.join(__dirname, 'sample-models/Address.js')
+				Address: path.join(__dirname, 'sample-models/Address.js'),
+				Expense: path.join(__dirname, 'sample-models/Expense.js')
 			},
 			outdir: path.join(__dirname, '../out')
 		};
