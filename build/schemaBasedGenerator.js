@@ -7,6 +7,8 @@ exports.schemaBasedGenerator = undefined;
 
 var _SchemaLoader = require('./SchemaLoader');
 
+var _SeedDataLoader = require('./SeedDataLoader');
+
 var _fs = require('fs');
 
 var _fs2 = _interopRequireDefault(_fs);
@@ -20,6 +22,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 // Recursively create a directory if it does not exist
 // dir : The directory to create
 // callback : void function (err, isCreated)
+/*
+ * This is the entry point for the schema-based generators.
+ */
 function mkdirp(dir, callback) {
 	_fs2.default.exists(dir, function (exists) {
 		if (exists) {
@@ -73,9 +78,6 @@ function mkdirp(dir, callback) {
 // arr: The array
 // fnEach: Invoked on each element of the array. Signature: void function (item, done), where done is void function (err)
 // callback: Invoked at the end or if an error occurs. Signature: void function (err)
-/*
- * This is the entry point for the schema-based generators.
- */
 function sequence(arr, fnEach, callback) {
 	var index = 0;
 	function onDone() {
@@ -123,6 +125,8 @@ var schemaBasedGenerator = exports.schemaBasedGenerator = {
 	//  - dbConnectString: The connection string for the database (mongo, postgres, etc.)
 	//	- schemas: An object whose property names are Entity names and
 	//		the values are paths to the schema files OR the schema objects
+	// 	- seedData: An object whose property names are Entity names and
+	//		the values are paths to the seed-data files OR the seed-data arrays
 	// 	- outdir: The output directory's structure may vary. For example, this is what the output will look like for
 	//		api = express and dal = node-mongodb or node-postgres:
 	//		outdir/
@@ -135,7 +139,9 @@ var schemaBasedGenerator = exports.schemaBasedGenerator = {
 	generate: function generate(opts, callback) {
 		var SchemaToApi = require('./' + opts.api + '/SchemaToApi').SchemaToApi,
 		    SchemaToDal = require('./' + opts.dal + '/SchemaToDal').SchemaToDal,
-		    schemaLoader = new _SchemaLoader.SchemaLoader(opts.schemas);
+		    SeedDataCodeGen = require('./SeedDataCodeGen').SeedDataCodeGen,
+		    schemaLoader = new _SchemaLoader.SchemaLoader(opts.schemas),
+		    seedDataLoader = new _SeedDataLoader.SeedDataLoader(opts.seedData);
 
 		var dalDir = _path2.default.join(opts.outdir, 'dal');
 
@@ -205,6 +211,20 @@ var schemaBasedGenerator = exports.schemaBasedGenerator = {
 			}, onProcessingDone);
 		}
 
+		function processSeedDataDbScripts(onProcessingDone) {
+			if (seedDataLoader.seedData.length < 1) {
+				onProcessingDone();
+				return;
+			}
+
+			sequence(seedDataLoader.seedData, function (seedDataSet, done) {
+				var seedDataCodeGen = new SeedDataCodeGen();
+				var biCode = seedDataCodeGen.generate(seedDataSet.schemaName, seedDataSet.data);
+
+				_fs2.default.writeFile(_path2.default.join(opts.outdir, 'bulk-insert-' + seedDataSet.schemaName + '.js'), biCode, done);
+			}, onProcessingDone);
+		}
+
 		var commands = [function (done) {
 			return createDirsIfNotExists([opts.outdir, dalDir], done);
 		}, function (done) {
@@ -217,6 +237,8 @@ var schemaBasedGenerator = exports.schemaBasedGenerator = {
 			return processConfiguration(done);
 		}, function (done) {
 			return processIndividualSchemas(done);
+		}, function (done) {
+			return processSeedDataDbScripts(done);
 		}];
 		sequence(commands, function (fn, done) {
 			return fn(done);
