@@ -166,9 +166,11 @@ var schemaBasedGenerator = exports.schemaBasedGenerator = {
 			var config = {
 				versionNumber: opts.versionNumber,
 				dbConnectString: opts.dbConnectString,
-				dbCreateDbConnectString: dbCreateDbConnectString,
 				dbName: dbName
 			};
+			if (opts.dal === 'node-postgres') {
+				config.dbCreateDbConnectString = dbCreateDbConnectString;
+			}
 			_fs2.default.writeFile(_path2.default.join(opts.outdir, 'configuration.json'), JSON.stringify(config, undefined, 2), onProcessingDone);
 		}
 
